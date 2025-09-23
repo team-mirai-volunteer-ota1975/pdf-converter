@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "framework": "none",
+  "buildCommand": "npm run build",
+  "devCommand": "npm run dev",
+  "builds": [
+    { "src": "dist/server.js", "use": "@vercel/node" }
+  ],
+  "routes": [
+    { "src": "/parse-pdf", "dest": "dist/server.js" }
+  ]
+}
