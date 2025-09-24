@@ -1,10 +1,8 @@
 {
   "version": 2,
-  "framework": "hono",
-  "routes": [
-    {
-      "src": "/parse-pdf",
-      "dest": "/api/parse-pdf.ts"
+  "functions": {
+    "api/*.ts": {
+      "runtime": "@vercel/node@3"
     }
-  ]
+  }
 }
