@@ -1,12 +1,13 @@
 import { Hono } from "hono"
 import { handle } from "hono/vercel"
 import { cors } from "hono/cors"
-import { parsePdf } from "./pdfService.js"
+import { parsePdf } from "./pdfService.js"  // api/から相対パス調整
 
 const app = new Hono()
 app.use("*", cors())
 
-app.post("/parse-pdf", async (c) => {
+// ← ここは "/" にしておく
+app.post("/", async (c) => {
   const body = await c.req.parseBody()
   const file = body["file"]
 
@@ -14,21 +15,15 @@ app.post("/parse-pdf", async (c) => {
     return c.text("No file uploaded", 400)
   }
 
-  const arrayBuffer = await file.arrayBuffer()
-  const buffer = Buffer.from(arrayBuffer)
+  const buffer = Buffer.from(await file.arrayBuffer())
+  const text = await parsePdf(buffer)
 
-  try {
-    const text = await parsePdf(buffer)
-    return c.json({
-      filename: file.name,
-      length: text.length,
-      text,
-      preview: text.slice(0, 500) + "..."
-    })
-  } catch (err: any) {
-    console.error(err)
-    return c.text("PDF parsing failed: " + err.message, 500)
-  }
+  return c.json({
+    filename: file.name,
+    length: text.length,
+    text,
+    preview: text.slice(0, 500) + "..."
+  })
 })
 
 export const POST = handle(app)
