@@ -1,4 +1,10 @@
 {
   "version": 2,
-  "framework": "hono"
+  "framework": "hono",
+  "routes": [
+    {
+      "src": "/parse-pdf",
+      "dest": "/api/parse-pdf.ts"
+    }
+  ]
 }

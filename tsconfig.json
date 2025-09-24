@@ -1,12 +1,15 @@
 {
-  "compilerOptions": {
-    "target": "ES2020",
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "strict": true,
-    "outDir": "dist"
-  },
-  "include": ["src", "api"]
+    "compilerOptions":  {
+                            "target":  "ES2020",
+                            "module":  "NodeNext",
+                            "moduleResolution":  "NodeNext",
+                            "esModuleInterop":  true,
+                            "skipLibCheck":  true,
+                            "strict":  true,
+                            "outDir":  "dist"
+                        },
+    "include":  [
+                    "src",
+                    "api"
+                ]
 }
