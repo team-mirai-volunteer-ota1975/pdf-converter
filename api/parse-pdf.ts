@@ -1,10 +1,21 @@
-import { Hono } from "hono"
-import { handle } from "hono/vercel"
-import { cors } from "hono/cors"
-import { parsePdf } from "./pdfService.js"
+import { Hono } from 'hono'
+import { handle } from 'hono/vercel'
+import type { Context, Next } from 'hono'
+import { parsePdf } from './pdfService'
 
 const app = new Hono()
-app.use("*", cors())
+
+// ---- 自前CORS（hono/corsは使わない）----
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET,POST,OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type',
+}
+app.use('*', async (c: Context, next: Next) => {
+  if (c.req.method === 'OPTIONS') return c.text('', 204, corsHeaders)
+  await next()
+  for (const [k, v] of Object.entries(corsHeaders)) c.header(k, v)
+})
 
 app.post("/parse-pdf", async (c) => {
   const body = await c.req.parseBody()
