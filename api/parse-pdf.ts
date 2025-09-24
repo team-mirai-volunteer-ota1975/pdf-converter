@@ -1,45 +1,40 @@
-import { Hono } from 'hono'
-import { handle } from 'hono/vercel'
-import type { Context, Next } from 'hono'
-import { parsePdf } from './pdfService'
+import type { VercelRequest, VercelResponse } from '@vercel/node'
+import pdf from 'pdf-parse'
 
-const app = new Hono()
+export default async function handler(req: VercelRequest, res: VercelResponse) {
+  // CORS（ブラウザから呼ぶなら必要）
+  res.setHeader('Access-Control-Allow-Origin', '*')
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
 
-// ---- 自前CORS（hono/corsは使わない）----
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET,POST,OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type',
-}
-app.use('*', async (c: Context, next: Next) => {
-  if (c.req.method === 'OPTIONS') return c.text('', 204, corsHeaders)
-  await next()
-  for (const [k, v] of Object.entries(corsHeaders)) c.header(k, v)
-})
-
-app.post("/parse-pdf", async (c) => {
-  const body = await c.req.parseBody()
-  const file = body["file"]
-
-  if (!(file instanceof File)) {
-    return c.text("No file uploaded", 400)
+  if (req.method === 'OPTIONS') {
+    res.status(204).end()
+    return
   }
 
-  const arrayBuffer = await file.arrayBuffer()
-  const buffer = Buffer.from(arrayBuffer)
+  if (req.method !== 'POST') {
+    res.status(405).send('Method Not Allowed')
+    return
+  }
 
   try {
-    const text = await parsePdf(buffer)
-    return c.json({
-      filename: file.name,
-      length: text.length,
-      text,
-      preview: text.slice(0, 500) + "..."
+    // リクエストボディを Buffer にまとめる
+    const chunks: Buffer[] = []
+    for await (const chunk of req) {
+      chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk))
+    }
+    const buffer = Buffer.concat(chunks)
+
+    // PDF をパース
+    const data = await pdf(buffer)
+
+    res.status(200).json({
+      length: data.text.length,
+      preview: data.text.slice(0, 500) + '...',
+      text: data.text
     })
   } catch (err: any) {
     console.error(err)
-    return c.text("PDF parsing failed: " + err.message, 500)
+    res.status(500).send('PDF parsing failed: ' + err.message)
   }
-})
-
-export default handle(app)
+}
