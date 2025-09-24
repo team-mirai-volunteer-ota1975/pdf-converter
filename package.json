@@ -8,7 +8,8 @@
     "postinstall": "patch-package"
   },
   "dependencies": {
-    "hono": "^4.4.7"
+    "hono": "^4.4.7",
+    "patch-package": "^8.0.0"
   },
   "devDependencies": {
     "typescript": "^5.4.0"
