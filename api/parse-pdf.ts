@@ -1,4 +1,5 @@
 import { Hono } from "hono"
+import { handle } from "hono/vercel"
 import { cors } from "hono/cors"
 import { parsePdf } from "./pdfService.js"
 
@@ -30,4 +31,4 @@ app.post("/parse-pdf", async (c) => {
   }
 })
 
-export default app
+export const POST = handle(app)
