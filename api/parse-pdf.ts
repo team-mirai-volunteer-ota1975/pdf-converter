@@ -1,6 +1,6 @@
 import { Hono } from "hono"
 import { cors } from "hono/cors"
-import { parsePdf } from "../pdfService.js"
+import { parsePdf } from "./pdfService.js"
 
 const app = new Hono()
 app.use("*", cors())
